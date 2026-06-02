@@ -1,0 +1,531 @@
+syntax = "proto3";
+
+package beget.k8s.v1.statistic;
+
+import "google/api/annotations.proto";
+
+// Статистика использование ресурсов
+//
+// Предоставляет методы для получения статистики по использованию нодами CPU, оперативной памяти, NVMe
+service StatisticService {
+    // Получить статистику об использовании CPU Control Plane
+    //
+    // Возвращает статистику об использовании CPU за указанный период
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc getCpuControlPlane (GetCpuControlPlaneRequest) returns (GetCpuControlPlaneResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/cpu"
+        };
+    }
+
+    // Получить статистику об использовании CPU воркер-группы
+    //
+    // Возвращает статистику об использовании CPU за указанный период
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    //
+    // Для получения идентификаторов воркер-групп `worker_group_id` необходимо использовать метод
+    // "Получить информацию о воркер-группах" из API "Управление воркер-группами кластеров"
+    rpc getCpuWorkerGroup (GetCpuWorkerGroupRequest) returns (GetCpuWorkerGroupResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/{worker_group_id}/cpu"
+        };
+    }
+
+    // Получить статистику об использовании оперативной памяти Control Plane
+    //
+    // Возвращает статистику об использовании оперативной памяти за указанный период
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc getMemoryControlPlane (GetMemoryControlPlaneRequest) returns (GetMemoryControlPlaneResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/memory"
+        };
+    }
+
+    // Получить статистику об использовании оперативной памяти
+    //
+    // Возвращает статистику об использовании оперативной памяти за указанный период
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    //
+    // Для получения идентификаторов воркер-групп `worker_group_id` необходимо использовать метод
+    // "Получить информацию о воркер-группах" из API "Управление воркер-группами кластеров"
+    rpc getMemoryWorkerGroup (GetMemoryWorkerGroupRequest) returns (GetMemoryWorkerGroupResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/{worker_group_id}/memory"
+        };
+    }
+
+    //  Получить статистику о занятом месте на диске для Control Plane
+    //
+    // Возвращает статистику о занятом месте на диске за указанный период.
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc getDiskUsageControlPlane (GetDiskUsageControlPlaneRequest) returns (GetDiskUsageControlPlaneResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/disk-usage"
+        };
+    }
+
+    //  Получить статистику о занятом месте на диске для воркер-группы
+    //
+    // Возвращает статистику о занятом месте на диске за указанный период.
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    //
+    // Для получения идентификаторов воркер-групп `worker_group_id` необходимо использовать метод
+    // "Получить информацию о воркер-группах" из API "Управление воркер-группами кластеров"
+    rpc getDiskUsageWorkerGroup (GetDiskUsageWorkerGroupRequest) returns (GetDiskUsageWorkerGroupResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/{worker_group_id}/disk-usage"
+        };
+    }
+
+    // Получить статусов подов
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc getPodsStatus (GetPodsStatusRequest) returns (GetPodsStatusResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/pods-status"
+        };
+    };
+
+    // Получить количество рестартов подов
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc getRestartCount (GetRestartCountRequest) returns (GetRestartCountResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/restart-count"
+        };
+    };
+
+    // Получить рабочую нагрузку в данный момент
+    //
+    // Для получения идентификаторов кластеров `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc getWorkload (GetWorkloadRequest) returns (GetWorkloadResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/statistic/{cluster_id}/workload"
+        };
+    };
+}
+
+message GetWorkloadRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+}
+
+message GetWorkloadResponse {
+    // Рабочая нагрузка подов в данный момент времени
+    repeated PodWorkloadInfo pods = 1;
+
+    message PodWorkloadInfo {
+        // Название пода
+        string pod_name = 1;
+
+        // Пользовательский неймспейс
+        string namespace = 2;
+
+        // Название ноды
+        string node_name = 3;
+
+        // Название воркер-группы
+        string worker_group_name = 4;
+
+        // Статистика использования CPU, в %
+        float cpu_percent = 5;
+
+        // Статистика использования оперативной памяти, в Мб
+        int32 ram_mb = 6;
+
+        // Количество рестартов
+        int32 restarts = 7;
+
+        // Статус пода
+        string status = 8;
+    }
+}
+
+message GetRestartCountRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 2;
+}
+
+message GetRestartCountResponse {
+    repeated Restarts data = 1;
+
+    message Restarts {
+        // Пользовательский неймспейс
+        string namespace = 1;
+
+        // Время конкретного момента в статистике
+        repeated string date = 2;
+
+        // Количество рестартов
+        repeated int32 restarts = 3;
+    }
+}
+
+message GetPodsStatusRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 2;
+}
+
+message GetPodsStatusResponse {
+    repeated Statuses data = 1;
+
+    message Statuses {
+        // Пользовательский неймспейс
+        string namespace = 1;
+
+        // Временная метка
+        repeated string date = 2;
+
+        // Массив с количеством подов в статусе running
+        repeated int32 running = 3;
+
+        // Массив с количеством подов в статусе pending
+        repeated int32 pending = 4;
+
+        // Массив с количеством подов в статусе failed
+        repeated int32 failed = 5;
+
+        // Массив с количеством подов в статусе succeeded
+        repeated int32 succeeded = 6;
+
+        // Массив с количеством подов в статусе unknown
+        repeated int32 unknown = 7;
+    }
+}
+
+message GetCpuControlPlaneRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 2;
+}
+
+message GetCpuControlPlaneResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Данные по Control Plane
+        ResponseInfo response_info = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message ResponseInfo {
+        // Статистика использования CPU, в %
+        repeated StatisticSeriesData data = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+        }
+    }
+}
+
+message GetCpuWorkerGroupRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string worker_group_id = 2;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 3;
+}
+
+message GetCpuWorkerGroupResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Данные по Воркер-группе
+        CpuWorkerGroupInfo cpu_worker_group_info = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message CpuWorkerGroupInfo {
+        // Название воркер-группы
+        string name = 1;
+
+        // Статистика использования CPU, в %
+        StatisticSeriesData data = 2;
+
+        // Статистика по нодам воркер-группы
+        repeated CpuNodeInfo node_info = 3;
+
+        message CpuNodeInfo {
+            // Идентификатор ноды
+            string node_id = 1;
+
+            // Статистика использования CPU, в %
+            StatisticSeriesData data = 2;
+        }
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 2;
+        }
+    }
+}
+
+message GetMemoryControlPlaneRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 2;
+}
+
+message GetMemoryControlPlaneResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Данные по Control Plane
+        ResponseInfo response_info = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message ResponseInfo {
+        // Статистика использования оперативной памяти, в Мб
+        repeated StatisticSeriesData data = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+        }
+    }
+}
+
+message GetMemoryWorkerGroupRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string worker_group_id = 2;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 3;
+}
+
+message GetMemoryWorkerGroupResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Данные по Воркер-группе
+        MemoryWorkerGroupInfo memory_worker_group_info = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message MemoryWorkerGroupInfo {
+        // Название воркер-группы
+        string name = 1;
+
+        // Статистика использования оперативной памяти, в %
+        StatisticSeriesData data = 2;
+
+        // Статистика по нодам воркер-группы
+        repeated MemoryNodeInfo node_info = 3;
+
+        message MemoryNodeInfo {
+            // Идентификатор ноды
+            string node_id = 1;
+
+            // Статистика использования оперативной памяти, в %
+            StatisticSeriesData data = 2;
+        }
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 2;
+        }
+    }
+}
+
+message GetDiskUsageControlPlaneRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 2;
+}
+
+message GetDiskUsageControlPlaneResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Данные по Control Plane
+        ResponseInfo response_info = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message ResponseInfo {
+        // Статистика использования диска, в %
+        repeated StatisticSeriesData data = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+        }
+    }
+}
+
+message GetDiskUsageWorkerGroupRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string worker_group_id = 2;
+
+    // Период за который нужна статистика
+    StatisticPeriod period = 3;
+}
+
+message GetDiskUsageWorkerGroupResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Данные по Воркер-группе
+        DiskUsageWorkerGroupInfo disk_usage_worker_group_info = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message DiskUsageWorkerGroupInfo {
+        // Название воркер-группы
+        string name = 1;
+
+        // Статистика использования диска, в %
+        StatisticSeriesData data = 2;
+
+        // Статистика по нодам воркер-группы
+        repeated DiskUsageNodeInfo node_info = 3;
+
+        message DiskUsageNodeInfo {
+            // Идентификатор ноды
+            string node_id = 1;
+
+            // Статистика использования диска, в %
+            StatisticSeriesData data = 2;
+        }
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 2;
+        }
+    }
+}
+
+// Период за который нужно получить статистику
+enum StatisticPeriod {
+    HOUR = 0;
+    DAY = 1;
+    WEEK = 2;
+    MONTH = 3;
+}
+
+message StatisticSeriesData {
+    // Время конкретного момента в статистике
+    repeated string date = 1;
+
+    // Значение статистики
+    repeated double value = 2;
+}

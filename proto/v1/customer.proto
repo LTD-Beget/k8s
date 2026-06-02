@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package beget.k8s.v1.customer;
+
+import "google/api/annotations.proto";
+
+// Пользователи k8s
+//
+// Представляет метод для получения информации о пользователях
+service CustomerService {
+    // Получить лимиты пользователя
+    //
+    // Получение лимитов пользователя для создания кластера/воркер-групп k8s
+    // Доступно только для авторизованного пользователя.
+    rpc getCustomerLimits (GetCustomerLimitsRequest) returns (GetCustomerLimitsResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/customer/limits"
+        };
+    }
+}
+
+message GetCustomerLimitsRequest {
+}
+
+message GetCustomerLimitsResponse {
+    // Лимит на создание кластеров
+    uint32 cluster_limit = 1;
+
+    // Лимит на создание воркер-групп в рамках кластера
+    uint32 worker_groups_per_cluster_limit = 2;
+}

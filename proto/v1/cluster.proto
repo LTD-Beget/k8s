@@ -1,0 +1,620 @@
+syntax = 'proto3';
+
+package beget.k8s.v1.cluster;
+
+import "google/api/annotations.proto";
+import "k8s/proto/v1/structures.proto";
+
+// Управление кластерами k8s
+//
+// Представляет набор методов для управления кластерами:
+// создание, обновление, удаление, получение информации о кластере/кластерах
+service ClusterService {
+    // Создать кластер
+    //
+    // Создаёт новый кластер
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc createCluster (CreateClusterRequest) returns (CreateClusterResponse) {
+        option (google.api.http) = {
+            post: "/v1/k8s/cluster",
+            body: "*"
+        };
+    }
+
+    // Получить информацию о кластере
+    //
+    // Отдаёт информацию об управляемом кластере. Информация включает в себя как общие для всех кластеров данные,
+    // такие как имя, описание, id конфигурации, статус, так и данные относящиеся к конкретному кластеру.
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc getCluster (GetClusterRequest) returns (GetClusterResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/cluster/{cluster_id}"
+        };
+    }
+
+    // Получить информацию о кластерах
+    //
+    // Отдаёт информацию по всем управляемым кластерам на текущем аккаунте. Набор данных по каждому кластеру совпадает
+    // с данными, возвращаемыми методом "Получить информацию о кластере"
+    rpc getClusterList (GetClusterListRequest) returns (GetClusterListResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/cluster"
+        };
+    }
+
+    // Удалить кластер
+    //
+    // Безвозвратно удаляет выбранный кластер и все данные, относящиеся к нему.
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc deleteCluster (DeleteClusterRequest) returns (DeleteClusterResponse) {
+        option (google.api.http) = {
+            delete: "/v1/k8s/cluster/{cluster_id}"
+        };
+    }
+
+    // Изменить информацию о кластере
+    //
+    // Позволяет обновить редактируемые свойства кластера, такие как имя и описание
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc updateCluster (UpdateClusterRequest) returns (UpdateClusterResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/cluster/{cluster_id}",
+            body: "*"
+        };
+    }
+
+    // Привязать проект к кластеру
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc bindProject (BindProjectRequest) returns (BindProjectResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/cluster/{cluster_id}/project",
+            body: "*"
+        };
+    }
+
+    // Закрепить кластер в интерфейсе пользователя
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc changePinned (ChangePinnedRequest) returns (ChangePinnedResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/cluster/{cluster_id}/pin"
+            body: "*"
+        };
+    }
+}
+
+message ChangePinnedRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Отображение кластера в интерфейсе как закрепленного
+    bool ui_pinned = 2;
+
+    // Ранг кластера, после которого будет размещен перемещаемый кластер в интерфейсе как закреплённый
+    string after_rank = 3;
+
+    // Ранг кластера, до которого будет размещен перемещаемый кластер в интерфейсе как закреплённый
+    string before_rank = 4;
+}
+
+message ChangePinnedResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация о кластере
+        ClusterInfo cluster = 1;
+
+        // Результат запроса: Ошибка при закреплении кластера
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Заблокирован доступ к кластеру
+            CLUSTER_BLOCKED = 2;
+        }
+    }
+}
+
+message BindProjectRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Идентификатор проекта
+    string project_id = 2;
+}
+
+message BindProjectResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация о кластере, к которому привязан проект
+        ClusterInfo cluster = 1;
+
+        // Результат запроса: Ошибка при привязке проекта
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Проект не найден или недоступен
+            PROJECT_NOT_FOUND = 1;
+
+            // Заблокирован доступ к кластеру
+            CLUSTER_BLOCKED = 2;
+        }
+    }
+}
+
+message CreateClusterRequest {
+    // Название кластера для отображения
+    string display_name = 1;
+
+    // Уникальное название кластера
+    string name = 2;
+
+    // Описание кластера (необязательный параметр)
+    string description = 3;
+
+    // Регион, в котором будет создан кластер, например `ru1`
+    string region = 4;
+
+    // Название конфигурации
+    string configuration_name = 5;
+
+    // Версия k8s
+    string version = 6;
+
+    // Период обновления системы
+    MaintenanceInfo maintenance = 7;
+
+    // Список аддонов для установки
+    repeated AddonConfiguration addon = 8;
+
+    // Список воркер-групп
+    repeated structures.WorkerGroupData worker_group = 9;
+
+    // Конфиг для аутентификации OIDC
+    OidcProvider oidc = 10;
+
+    // Конфиг сети кластера
+    NetworkConfiguration network_configuration = 11;
+
+    // Идентификатор проекта
+    string project_id = 12;
+
+    // Отображать ли кластер в интерфейсе как закрепленный
+    bool ui_pinned = 13;
+
+    // Ранг кластера, после которого будет размещен кластер в интерфейсе как закреплённый
+    string ui_pinned_after_rank = 14;
+
+    // Ранг кластера, до которого будет размещен кластер в интерфейсе как закреплённый
+    string ui_pinned_before_rank = 15;
+
+    message AddonConfiguration {
+        string name = 1;
+    }
+
+    message NetworkConfiguration {
+        reserved 3;
+        reserved "max_pods_count";
+
+        // Диапазон адресов сервисов
+        string service_cluster_ip = 1;
+
+        // Диапазон адресов подов (CIDR)
+        string cidr = 2;
+
+        // Маска подсети ноды
+        string subnet_mask_node = 4;
+    }
+}
+
+message CreateClusterResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация о созданном кластере
+        ClusterInfo cluster = 1;
+
+        // Результат запроса: Ошибка при создании кластера
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Недостаточно средств
+            INSUFFICIENT_FUNDS = 1;
+
+            // Заблокирован доступ к услуге
+            BLOCKED = 2;
+
+            // Проект не найден или недоступен
+            PROJECT_NOT_FOUND = 3;
+
+            // Превышен лимит кластеров
+            CLUSTER_LIMIT_EXCEEDED = 4;
+
+            // Не переданы данные для создания Воркер-группы
+            WORKER_GROUP_REQUIRED = 5;
+
+            // В запросе отсутствуют обязательные параметры
+            REQUIRED_VALIDATION_FAILED = 6;
+
+            // Указана некорректная конфигурация кластера
+            INVALID_CONFIGURATION = 7;
+
+            // Указан недоступный регион
+            INVALID_REGION = 8;
+
+            // Указана некорректная версия kubernetes
+            INCORRECT_KUBERNETES_VERSION = 9;
+
+            // Указана некорректная конфигурация воркер-групп
+            INVALID_WORKER_GROUP_CONFIGURATION = 10;
+
+            // Указана некорректная конфигурация сети
+            INVALID_NETWORK_CONFIGURATION = 11;
+
+            // Указано слишком длинное значение параметра display_name
+            DISPLAY_NAME_TOO_LONG = 12;
+
+            // Указано слишком длинное значение параметра description
+            DESCRIPTION_TOO_LONG = 13;
+
+            // Превышен лимит воркер-групп в рамках кластера
+            WORKER_GROUP_LIMIT_EXCEEDED = 14;
+
+            // Некорректные данные labels
+            INVALID_LABEL_DATA = 15;
+
+            // Некорректные данные taints
+            INVALID_TAINT_DATA = 16;
+        }
+    }
+}
+
+message GetClusterRequest {
+    // ID кластера
+    string cluster_id = 1;
+}
+
+message GetClusterResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация о кластере
+        ClusterInfo cluster = 1;
+
+        // Результат запроса: Ошибка при получении кластера
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Проект не найден или недоступен
+            PROJECT_NOT_FOUND = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+        }
+    }
+}
+
+message GetClusterListRequest {
+    // Смещение, 0 по умолчанию
+    uint32 offset = 1;
+
+    // Количество возвращаемых элементов, от 1 до 9999, по умолчанию 9999
+    uint32 limit = 2;
+
+    // Фильтрация по полям
+    // Каждый элемент представляет отдельное условие фильтрации в формате `<field><operator><value>`, где:
+    // 1. `<field>` — имя поля для фильтрации.
+    // 2. `<operator>` — логический оператор: `=` (равенство) или `:` (вхождение подстроки).
+    // 3. `<value>` — значение для сравнения.
+    //
+    // Поддерживаемые операторы: `=`, `:`
+    //
+    // Поддерживаемые поля для фильтрации: `id`, `name`, `display_name`, `region.id`, `ui_pinned`, `project_id`
+    string filter = 3;
+
+    // Сортировка по полям
+    // Каждый элемент представляет отдельное условие сортировки в формате `<field><space><direction>`, где:
+    // 1. `<field>` - имя поля для сортировки
+    // 2. `<space>` - пробел между полем и направлением сортировки
+    // 3. `<direction>` - направление сортировки (asc - по возрастанию, desc - по убыванию)
+    //
+    // Направление сортировки может быть опущено, в этом случае будет использоваться направление по-умолчанию (asc).
+    //
+    // Пример: `created_at desc`
+    //
+    // Поддерживаемые поля для сортировки: `created_at`, `updated_at`, `ui_pin_changed_at`, `display_name`, `display_rank`
+    string sort = 4;
+}
+
+message GetClusterListResponse {
+    // Информация о кластерах
+    repeated ClusterInfo cluster_info = 1;
+
+    // Общее количество кластеров
+    uint32 total_count = 2;
+}
+
+message DeleteClusterRequest {
+    // ID кластера
+    string cluster_id = 1;
+}
+
+message DeleteClusterResponse {
+    // Успешное удаление кластера
+    Success success = 1;
+
+    message Success {
+    }
+}
+
+message UpdateClusterRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // Название кластера
+    string display_name = 2;
+
+    // Описание кластера
+    string description = 3;
+
+    // Версия k8s
+    string version = 4;
+
+    // Период обновления системы
+    MaintenanceInfo maintenance = 5;
+
+    // Конфиг для аутентификации OIDC
+    OidcProvider oidc = 6;
+}
+
+message UpdateClusterResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация об изменённом кластере
+        ClusterInfo cluster = 1;
+
+        // Результат запроса: Ошибка при изменении кластера
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Заблокирован доступ к услуге
+            BLOCKED = 1;
+
+            // Некорректная версия k8s
+            INCORRECT_KUBERNETES_VERSION = 2;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 3;
+
+            // Заблокирован доступ к кластеру
+            CLUSTER_BLOCKED = 4;
+
+            // Кластер находится в процессе реконфигурации
+            ALREADY_RECONFIGURING = 5;
+
+            // Некорректное количество нод
+            INVALID_NODES_COUNT = 6;
+
+            // Кластер нельзя обновить в данный момент
+            UPDATE_CLUSTER_FORBIDDEN = 7;
+
+            // Указано слишком длинное значение параметра display_name
+            DISPLAY_NAME_TOO_LONG = 8;
+
+            // Указано слишком длинное значение параметра description
+            DESCRIPTION_TOO_LONG = 9;
+        }
+    }
+}
+
+message ClusterInfo {
+    // ID кластера
+    string id = 1;
+
+    // Данные конфигурации
+    structures.ClusterConfigurationInfo configuration_info = 2;
+
+    // Название кластера для отображения
+    string display_name = 3;
+
+    // Уникальное название кластера
+    string name = 4;
+
+    // Описание кластера
+    string description = 5;
+
+    // Версия k8s
+    string version = 6;
+
+    // Текущий статус кластера
+    Status status = 7;
+
+    // Короткое название кластера
+    string slug = 8;
+
+    // Регион, в котором создан кластер
+    structures.RegionInfo region = 9;
+
+    // Конфиг k8s
+    string kubeconfig = 10;
+
+    // Дата создания кластера
+    string created_at = 11;
+
+    // Конфиг для аутентификации OIDC
+    OidcProvider oidc = 12;
+
+    // Установленные аддоны
+    repeated InstalledAddonInfo addon_info = 13;
+
+    // Воркер-группы кластера
+    repeated structures.WorkerGroup worker_group = 14;
+
+    // Интервалы обновления системы
+    MaintenanceInfo maintenance = 15;
+
+    // Идентификатор проекта, к которому привязан кластер
+    string project_id = 16;
+
+    // Флаг отображения кластера в интерфейсе как закрепленного
+    bool ui_pinned = 17;
+
+    // Время последнего изменения значения `ui_pinned`
+    string ui_pin_changed_at = 18;
+
+    // Стоимость в день
+    double price_day = 19;
+
+    // Стоимость в месяц
+    double price_month = 20;
+
+    // Сеть кластера
+    ClusterNetworkInfo network_info = 21;
+
+    // Ранг сортировки для отображения, заполняется только при использовании сортировки по рангу или изменении ранга
+    string display_rank = 22;
+
+    // Флаг блокировки кластера
+    bool is_blocked = 23;
+
+    message InstalledAddonInfo {
+        // Информация об аддоне
+        structures.AddonInfo addon_info = 1;
+
+        // Статус
+        Status status = 2;
+
+        enum Status {
+            UNKNOWN = 0;
+            PENDING = 1;
+            INSTALLING = 2;
+            INSTALLED = 3;
+            ERROR = 4;
+            REMOVING = 5;
+        }
+    }
+
+    message ClusterNetworkInfo {
+        // Диапазон адресов сервисов
+        string service_cluster_ip = 1;
+
+        // Диапазон адресов подов (CIDR)
+        string cidr = 2;
+
+        // Максимум подов на 1 ноду
+        uint32 max_pods_count = 3;
+
+        // Маска подсети ноды
+        string subnet_mask_node = 4;
+    }
+
+    enum Status {
+        UNKNOWN = 0;
+        PROVISIONING = 1;
+        HEALTHY = 2;
+        DEGRADED = 3;
+        FAILED = 4;
+    }
+}
+
+message OidcProvider {
+    // Название подключения
+    string name = 1;
+
+    // Адрес, с которого k8s будет получать публичные ключи для проверки токенов
+    string issuer_url = 2;
+
+    // Имя приложения, через которое пользователи проходят аутентификацию
+    string client_id = 3;
+
+    // Имя поля в id_token, которое k8s будет использовать как имя пользователя.
+    // Например, если указать email, то пользователь будет отображаться как user@example.com
+    string username_claim = 4;
+
+    // Имя поля в id_token, содержащее список групп, к которым принадлежит пользователь.
+    // Используется для назначения ролей и прав доступа
+    string groups_claim = 5;
+}
+
+message MaintenanceInfo {
+    MaintenanceConfiguration config = 1;
+
+    // Время последнего обновления
+    string last_system_update = 2;
+}
+
+message MaintenanceConfiguration {
+    // Начало временного интервала обновления системы (hh:mm)
+    string update_from = 1;
+
+    // Конец временного интервала обновления системы (hh:mm)
+    string update_to = 2;
+
+    // Часовой пояс интервалов в формате UTC
+    string updates_timezone = 3;
+}

@@ -1,0 +1,442 @@
+syntax = 'proto3';
+
+package beget.k8s.v1.workerGroup;
+
+import "google/api/annotations.proto";
+import "k8s/proto/v1/structures.proto";
+
+// Управление воркер-группами кластеров k8s
+//
+// Представляет набор методов для управления воркер-группами:
+// добавление, обновление, удаление, получение списка
+service WorkerGroupService {
+    // Добавить воркер-группу
+    //
+    // Добавляет воркер-группу
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc addWorkerGroup (AddWorkerGroupRequest) returns (AddWorkerGroupResponse) {
+        option (google.api.http) = {
+            post: "/v1/k8s/worker/{cluster_id}"
+            body: "*"
+        };
+    }
+
+    // Удалить воркер-группу
+    //
+    // Удаляет воркер-группу
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc deleteWorkerGroup (DeleteWorkerGroupRequest) returns (DeleteWorkerGroupResponse) {
+        option (google.api.http) = {
+            delete: "/v1/k8s/worker/{cluster_id}/{id}"
+        };
+    }
+
+    // Обновить конфигурацию воркер-группы
+    //
+    // Обновляет конфигурацию воркер-группы
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc updateWorkerGroupConfiguration (UpdateWorkerGroupConfigurationRequest) returns (UpdateWorkerGroupConfigurationResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/worker/{cluster_id}/{id}/configuration",
+            body: "*"
+        };
+    }
+
+    // Обновить labels воркер-группы
+    //
+    // Обновляет labels воркер-группы
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc updateWorkerGroupLabels (UpdateWorkerGroupLabelsRequest) returns (UpdateWorkerGroupLabelsResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/worker/{cluster_id}/{id}/labels",
+            body: "*"
+        };
+    }
+
+    // Обновить taints воркер-группы
+    //
+    // Обновляет taints воркер-группы
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc updateWorkerGroupTaints (UpdateWorkerGroupTaintsRequest) returns (UpdateWorkerGroupTaintsResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/worker/{cluster_id}/{id}/taints",
+            body: "*"
+        };
+    }
+
+    // Получить информацию о воркер-группах кластера
+    //
+    // Отдаёт информацию о всех воркер-группах кластера
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc getWorkerGroupList (GetWorkerGroupListRequest) returns (GetWorkerGroupListResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/worker/{cluster_id}"
+        };
+    };
+
+
+    // Удалить ноду из воркер-группы
+    //
+    // Удаляет ноду в рамках воркер-группы и пересоздает ее заново
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc deleteNode (DeleteNodeRequest) returns (DeleteNodeResponse) {
+        option (google.api.http) = {
+            delete: "/v1/k8s/worker/{cluster_id}/{id}/{node_id}"
+        };
+    };
+
+    // Перезагрузить ноду
+    //
+    // Перезагружает ноду в рамках воркер группы
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc rebootNode (RebootNodeRequest) returns (RebootNodeResponse) {
+        option (google.api.http) = {
+            post: "/v1/k8s/worker/{cluster_id}/{id}/{node_id}/reboot"
+        };
+    };
+}
+
+message AddWorkerGroupRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // Конфигурация воркер-группы
+    structures.WorkerGroupData worker_group = 2;
+}
+
+message AddWorkerGroupResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Добавленная воркер-группа
+        structures.WorkerGroup group = 1;
+
+        // Результат запроса: Ошибка при добавлении
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Заблокирован доступ к услуге
+            BLOCKED = 1;
+
+            // Недостаточно средств на аккаунте
+            INSUFFICIENT_FUNDS = 2;
+
+            // Некорректная конфигурация нод
+            INVALID_NODE_CONFIG = 3;
+
+            // Некорректный SSH-ключ
+            INVALID_SSH_KEY = 4;
+
+            // Кластер находится в процессе реконфигурации
+            CLUSTER_IS_RECONFIGURING = 5;
+
+            // Воркер-группа с таким именем уже существует
+            DUPLICATE_NAME = 6;
+
+            // Некорректные данные лейблов
+            INVALID_LABEL_DATA = 7;
+
+            // Некорректное количество нод
+            INVALID_NODE_COUNT = 8;
+
+            // Превышен лимит воркер-групп в рамках кластера
+            WORKER_GROUP_LIMIT_EXCEEDED = 9;
+
+            // Некорректные данные taints
+            INVALID_TAINT_DATA = 10;
+        }
+    }
+}
+
+message DeleteWorkerGroupRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string id = 2;
+}
+
+message DeleteWorkerGroupResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успешное удаление воркер-группы
+        Success success = 1;
+
+        // Результат запроса: Ошибка при удалении
+        Error error = 2;
+    }
+
+    message Success { }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Нельзя удалить единственную воркер-группу в кластере
+            LAST_WORKER_GROUP = 1;
+
+            // Воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 2;
+        }
+    }
+}
+
+message UpdateWorkerGroupConfigurationRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string id = 2;
+
+    // Конфигурация воркер-группы с данными для обновления
+    structures.WorkerGroupConfiguration configuration = 3;
+
+    // Пароль (должен включать минимум 1 upper, 1 lower, 1 digit, 1 special char. Мин длина - 8 символов)
+    string worker_group_password = 4;
+}
+
+message UpdateWorkerGroupConfigurationResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Обновленная воркер-группа
+        structures.WorkerGroup group = 1;
+
+        // Результат запроса: Ошибка при обновлении
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Другая внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Заблокирован доступ к услуге
+            BLOCKED = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+
+            // воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 3;
+
+            // Недостаточно средств на аккаунте
+            INSUFFICIENT_FUNDS = 4;
+
+            // Кластер находится в процессе реконфигурации
+            CLUSTER_IS_RECONFIGURING = 5;
+
+            // Воркер-группа с таким именем уже существует
+            DUPLICATE_NAME = 6;
+
+            // Некорректная конфигурация нод
+            INVALID_NODE_CONFIG = 7;
+
+            // Некорректное количество нод
+            INVALID_NODE_COUNT = 8;
+
+            // Некорректный SSH-ключ
+            INVALID_SSH_KEY = 9;
+        }
+    }
+}
+
+message UpdateWorkerGroupLabelsRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string id = 2;
+
+    structures.LabelsConfiguration label_config = 3;
+}
+
+message UpdateWorkerGroupLabelsResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Обновленная воркер-группа
+        structures.WorkerGroup group = 1;
+
+        // Результат запроса: Ошибка при обновлении
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Другая внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 2;
+
+            // Кластер находится в процессе реконфигурации
+            CLUSTER_IS_RECONFIGURING = 3;
+
+            // Некорректные данные лейблов
+            INVALID_LABEL_DATA = 4;
+        }
+    }
+}
+
+message UpdateWorkerGroupTaintsRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string id = 2;
+
+    structures.TaintsConfiguration taint_config = 3;
+}
+
+message UpdateWorkerGroupTaintsResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Обновленная воркер-группа
+        structures.WorkerGroup group = 1;
+
+        // Результат запроса: Ошибка при обновлении
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Другая внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 2;
+
+            // Кластер находится в процессе реконфигурации
+            CLUSTER_IS_RECONFIGURING = 3;
+
+            // Некорректные данные taints
+            INVALID_TAINT_DATA = 4;
+        }
+    }
+}
+
+message GetWorkerGroupListRequest {
+    // ID кластера
+    string cluster_id = 1;
+}
+
+message GetWorkerGroupListResponse {
+    repeated structures.WorkerGroup worker_group = 1;
+}
+
+message DeleteNodeRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string id = 2;
+
+    // ID ноды
+    string node_id = 3;
+}
+
+message DeleteNodeResponse {
+    // Успешное удаление ноды
+    Success success = 1;
+
+    message Success {
+    }
+}
+
+
+message RebootNodeRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string id = 2;
+
+    // ID ноды
+    string node_id = 3;
+}
+
+message RebootNodeResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Обновленная воркер-группа
+        structures.WorkerGroup group = 1;
+
+        // Результат запроса: Ошибка при добавлении
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Заблокирован доступ к услуге
+            BLOCKED = 1;
+
+            // Нода недоступна
+            NODE_UNAVAILABLE = 2;
+        }
+    }
+}

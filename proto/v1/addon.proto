@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package beget.k8s.v1.addon;
+
+import "google/api/annotations.proto";
+import "k8s/proto/v1/structures.proto";
+
+// Управление аддонами k8s
+//
+// Представляет метод для получения информации об аддонах
+service AddonService {
+    // Получить информацию об аддонах
+    //
+    // Отдаёт информацию по всем активным аддонам
+    rpc getAvailableAddons (GetAvailableAddonsRequest) returns (GetAvailableAddonsResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/addon"
+        };
+    }
+
+    // Удалить аддон
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    //
+    // Для получения уникального имени аддона `name` необходимо использовать метод
+    // "Получить информацию об аддонах"
+    rpc deleteAddon (DeleteAddonRequest) returns (DeleteAddonResponse) {
+        option (google.api.http) = {
+            delete: "/v1/k8s/addon/{cluster_id}/{name}"
+        };
+    };
+
+    // Установка/переустановка аддона
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    //
+    // Для получения уникального имени аддона `name` необходимо использовать метод
+    // "Получить информацию об аддонах"
+    rpc installAddon (InstallAddonRequest) returns (InstallAddonResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/addon/{cluster_id}/{name}"
+            body: "*"
+        };
+    };
+}
+
+message InstallAddonRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // Уникальное имя аддона
+    string name = 2;
+}
+
+message InstallAddonResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успешная установка
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success {
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Нельзя установить предустановленный аддон
+            CANNOT_INSTALL_PREINSTALLED = 1;
+        }
+    }
+}
+
+message DeleteAddonRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // Уникальное имя аддона
+    string name = 2;
+}
+
+message DeleteAddonResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успешное удаление
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success {
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Нельзя удалить предустановленный аддон
+            CANNOT_DELETE_PREINSTALLED = 1;
+        }
+    }
+}
+
+message GetAvailableAddonsRequest {
+}
+
+message GetAvailableAddonsResponse {
+    // Информация об аддонах
+    repeated structures.AddonInfo addon_info = 1;
+}

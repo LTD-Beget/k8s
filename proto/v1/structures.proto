@@ -1,0 +1,248 @@
+syntax = 'proto3';
+
+package beget.k8s.v1.structures;
+
+message WorkerGroup {
+    // ID воркер-группы
+    string id = 1;
+
+    // Конфигурация группы
+    WorkerGroupConfiguration group_configuration = 2;
+
+    // Название vps-конфигурации
+    string vps_configuration = 3;
+
+    // Статус воркер-группы
+    Status status = 4;
+
+    // Данные нод
+    repeated NodeInfo node_info = 5;
+
+    // Лейблы
+    LabelsConfiguration label_info = 6;
+
+    // Тейнты
+    TaintsConfiguration taint_info = 7;
+
+    // Стоимость в сутки
+    double price_day = 8;
+
+    // Стоимость в месяц
+    double price_month = 9;
+
+    message NodeInfo {
+        // ID конфига
+        string id = 1;
+
+        // Имя узла
+        string name = 2;
+
+        // Статус ноды
+        Status status = 3;
+
+        // Дата создания ноды
+        string created_at = 4;
+
+        // Локальный IP
+        string local_ip = 5;
+
+        // Публичный IP
+        string public_ip = 6;
+
+        enum Status {
+            UNKNOWN = 0;
+            PENDING = 1;
+            RUNNING = 2;
+            STOPPED = 3;
+            REMOVING = 4;
+            REMOVED = 5;
+        }
+    }
+
+    enum Status {
+        UNKNOWN = 0;
+        SCALING_UP = 1;
+        SCALING_DOWN = 2;
+        RUNNING = 3;
+        REMOVING = 4;
+        REMOVED = 5;
+    }
+}
+
+message WorkerGroupData {
+    // Конфигурация воркер-группы
+    WorkerGroupConfiguration configuration = 1;
+
+    // Пароль (должен включать минимум 1 upper, 1 lower, 1 digit, 1 special char. Мин длина - 8 символов)
+    string worker_group_password = 2;
+
+    // Лейблы
+    LabelsConfiguration label_config = 3;
+
+    // Тейнты
+    TaintsConfiguration taint_config = 4;
+}
+
+message WorkerGroupConfiguration {
+    // Название воркер-группы
+    string display_name = 1;
+
+    // Количество нод
+    uint32 node_count = 2;
+
+    // Конфигурация нод
+    NodeConfiguration node_config = 3;
+
+    // Автомасштабирование
+    AutoscaleConfiguration autoscale_config = 4;
+
+    // Идентификаторы публичных SSH-ключей
+    repeated uint32 ssh_keys = 5;
+}
+
+message AutoscaleConfiguration {
+    bool enabled = 1;
+    uint32 min_nodes = 2;
+    uint32 max_nodes = 3;
+}
+
+message NodeConfiguration {
+    // Количество ядер
+    uint32 cpu = 1;
+
+    // Память в мб
+    uint32 memory_mb = 2;
+
+    // Объем NVMe-накопителя в мб
+    uint32 nvme_mb = 3;
+}
+
+message LabelsConfiguration {
+    // Список лейблов
+    repeated Label label_info = 1;
+
+    // Использование labels включено
+    bool enabled = 2;
+
+    message Label {
+        // Ключ. Должен начинаться с префикса "node-role.kubernetes.io/"
+        string key = 1;
+        string value = 2;
+    }
+}
+
+message TaintsConfiguration {
+    // Список тейнтов
+    repeated Taint taint_info = 1;
+
+    // Использование taints включено
+    bool enabled = 2;
+
+    message Taint {
+        string key = 1;
+        string value = 2;
+        Effect effect = 3;
+
+        enum Effect {
+            _ = 0;
+            NO_EXECUTE = 1;
+            NO_SCHEDULE = 2;
+            PREFER_NO_SCHEDULE = 3;
+        }
+    }
+}
+
+message AddonInfo {
+    // Информация об аддоне
+    AddonMeta meta = 1;
+
+    // Версия аддона
+    string version = 2;
+
+    // Уникальное имя аддона
+    string name = 3;
+
+    // Название аддона
+    string display_name = 4;
+
+    message AddonMeta {
+        // Описание на русском
+        string description = 1;
+
+        // Описание на английском
+        string description_en = 2;
+
+        // Ссылка на иконку
+        string icon_link = 3;
+
+        // Минимально совместимая версия k8s
+        string k8s_min_version = 4;
+
+        // Предустановленный аддон
+        bool preinstalled = 5;
+
+        // Описание предустановленного аддона на русском
+        string tooltip_text = 6;
+
+        // Описание предустановленного аддона на английском
+        string tooltip_text_en = 7;
+
+        // Название докер-образа
+        repeated string docker_image = 8;
+
+        // Версия докер-образа
+        repeated string docker_image_version = 9;
+
+        // Ссылка на документацию
+        string docs_url = 10;
+
+        // Ссылка на официальный сайт
+        string official_url = 11;
+    }
+}
+
+message RegionInfo {
+    // Идентификатор региона
+    string id = 1;
+
+    // Отображаемое имя региона
+    string name = 2;
+
+    // Отображаемое имя региона на английском
+    string name_en = 3;
+
+    // Код страны региона в формате ISO 3166-1 alpha-2
+    string country = 4;
+
+    // Доступен ли регион для создания k8s
+    bool available = 5;
+}
+
+message ClusterConfigurationInfo {
+    // Название конфигурации
+    string name = 1;
+
+    // Название конфигурации для отображения
+    string display_name = 2;
+
+    // Количество мастер-нод
+    uint32 master_node_count = 3;
+
+    // Описание на русском
+    string description = 4;
+
+    // Описание на английском
+    string description_en = 5;
+
+    // Примечание на русском
+    string note = 6;
+
+    // Примечание на английском
+    string note_en = 7;
+
+    // Конфигурация нод
+    NodeConfiguration node_config_info = 8;
+
+    // Название конфигурации для отображения на английском
+    string display_name_en = 9;
+}
