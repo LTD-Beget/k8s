@@ -28,4 +28,10 @@ message GetCustomerLimitsResponse {
 
     // Лимит на создание воркер-групп в рамках кластера
     uint32 worker_groups_per_cluster_limit = 2;
+
+    // Лимит общего количества нод во всех воркер-группах в рамках кластера
+    uint32 nodes_per_cluster_limit = 3;
+
+    // Лимит подов в рамках ноды
+    uint32 pods_per_node_limit = 4;
 }
