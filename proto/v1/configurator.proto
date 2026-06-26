@@ -176,6 +176,9 @@ message GetRegionListRequest {
 
 message GetRegionListResponse {
     repeated structures.RegionInfo region_info = 1;
+
+    // Идентификатор региона, используемого по умолчанию
+    string default_region_id = 2;
 }
 
 message GetVersionsRequest {
