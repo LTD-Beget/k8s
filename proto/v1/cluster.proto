@@ -363,7 +363,14 @@ message GetClusterListRequest {
     //
     // Поддерживаемые операторы: `=`, `:`
     //
-    // Поддерживаемые поля для фильтрации: `id`, `name`, `display_name`, `region.id`, `ui_pinned`, `project_id`
+    // Поддерживаемые поля для фильтрации:
+    //     `id`
+    //     `name`
+    //     `display_name`
+    //     `description`
+    //     `region.id`
+    //     `ui_pinned`
+    //     `project_id`
     string filter = 3;
 
     // Сортировка по полям
