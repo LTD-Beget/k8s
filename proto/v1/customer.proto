@@ -24,14 +24,53 @@ message GetCustomerLimitsRequest {
 
 message GetCustomerLimitsResponse {
     // Лимит на создание кластеров
-    uint32 cluster_limit = 1;
+    uint32 cluster_limit = 1 [deprecated = true];
 
     // Лимит на создание воркер-групп в рамках кластера
-    uint32 worker_groups_per_cluster_limit = 2;
+    uint32 worker_groups_per_cluster_limit = 2 [deprecated = true];
 
     // Лимит общего количества нод во всех воркер-группах в рамках кластера
-    uint32 nodes_per_cluster_limit = 3;
+    uint32 nodes_per_cluster_limit = 3 [deprecated = true];
 
     // Лимит подов в рамках ноды
-    uint32 pods_per_node_limit = 4;
+    uint32 pods_per_node_limit = 4 [deprecated = true];
+
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация о лимитах пользователя
+        LimitInfo limit_info = 5;
+
+        // Результат запроса: Ошибка
+        Error error = 6;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+        }
+    }
+
+    message LimitInfo {
+        // Лимит на создание кластеров
+        uint32 cluster_limit = 1;
+
+        // Лимит на создание воркер-групп в рамках кластера
+        uint32 worker_groups_per_cluster_limit = 2;
+
+        // Лимит общего количества нод во всех воркер-группах в рамках кластера
+        uint32 nodes_per_cluster_limit = 3;
+
+        // Лимит подов в рамках ноды
+        uint32 pods_per_node_limit = 4;
+    }
 }

@@ -170,6 +170,12 @@ message AddWorkerGroupResponse {
 
             // Некорректные данные taints
             INVALID_TAINT_DATA = 10;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 11;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 12;
         }
     }
 }
@@ -210,6 +216,12 @@ message DeleteWorkerGroupResponse {
 
             // Воркер-группа не найдена
             WORKER_GROUP_NOT_FOUND = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND= 4;
         }
     }
 }
@@ -275,6 +287,9 @@ message UpdateWorkerGroupConfigurationResponse {
 
             // Некорректный SSH-ключ
             INVALID_SSH_KEY = 9;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 10;
         }
     }
 }
@@ -321,6 +336,9 @@ message UpdateWorkerGroupLabelsResponse {
 
             // Некорректные данные лейблов
             INVALID_LABEL_DATA = 4;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 5;
         }
     }
 }
@@ -367,6 +385,9 @@ message UpdateWorkerGroupTaintsResponse {
 
             // Некорректные данные taints
             INVALID_TAINT_DATA = 4;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 5;
         }
     }
 }
@@ -377,7 +398,40 @@ message GetWorkerGroupListRequest {
 }
 
 message GetWorkerGroupListResponse {
-    repeated structures.WorkerGroup worker_group = 1;
+    // Информация о воркер-группах
+    repeated structures.WorkerGroup worker_group = 1 [deprecated = true];
+
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация о воркер-группах
+        WorkerGroupData worker_group_data = 2;
+
+        // Результат запроса: Ошибка
+        Error error = 3;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+        }
+    }
+
+    message WorkerGroupData {
+        repeated structures.WorkerGroup worker_group = 1;
+    }
 }
 
 message DeleteNodeRequest {
@@ -393,9 +447,40 @@ message DeleteNodeRequest {
 
 message DeleteNodeResponse {
     // Успешное удаление ноды
-    Success success = 1;
+    Success success = 1 [deprecated = true];
+
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успешное удаление ноды
+        Success node_success = 2;
+
+        // Результат запроса: Ошибка
+        Error error = 3;
+    }
 
     message Success {
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+
+            // Воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 3;
+        }
     }
 }
 
@@ -437,6 +522,15 @@ message RebootNodeResponse {
 
             // Нода недоступна
             NODE_UNAVAILABLE = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 4;
+
+            // Воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 5;
         }
     }
 }

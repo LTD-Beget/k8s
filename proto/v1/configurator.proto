@@ -76,7 +76,35 @@ message GetWorkerGroupConfigurationRequest {
 
 message GetWorkerGroupConfigurationResponse {
     // Настройки конфигурации
-    ConfiguratorSettings settings = 1;
+    ConfiguratorSettings settings = 1 [deprecated = true];
+
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Настройки конфигурации
+        ConfiguratorSettings configurator_settings = 2;
+
+        // Результат запроса: Ошибка
+        Error error = 3;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Сервис временно недоступен
+            TEMPORARILY_UNAVAILABLE = 1;
+
+            // Сервис недоступен в данном регионе
+            UNAVAILABLE_FOR_REGION = 2;
+        }
+    }
 
     message ConfiguratorSettings {
         // Настройки CPU
@@ -168,6 +196,16 @@ message GetCalculationResponse {
     }
 
     message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+        }
     }
 }
 
