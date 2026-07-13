@@ -134,6 +134,9 @@ message ChangePinnedResponse {
 
             // Заблокирован доступ к кластеру
             CLUSTER_BLOCKED = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
         }
     }
 }
@@ -172,6 +175,12 @@ message BindProjectResponse {
 
             // Заблокирован доступ к кластеру
             CLUSTER_BLOCKED = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 4;
         }
     }
 }
@@ -309,6 +318,9 @@ message CreateClusterResponse {
 
             // Некорректные данные taints
             INVALID_TAINT_DATA = 16;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 17;
         }
     }
 }
@@ -344,6 +356,9 @@ message GetClusterResponse {
 
             // Кластер не найден
             CLUSTER_NOT_FOUND = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
         }
     }
 }
@@ -389,10 +404,43 @@ message GetClusterListRequest {
 
 message GetClusterListResponse {
     // Информация о кластерах
-    repeated ClusterInfo cluster_info = 1;
+    repeated ClusterInfo cluster_info = 1 [deprecated = true];
 
     // Общее количество кластеров
-    uint32 total_count = 2;
+    uint32 total_count = 2 [deprecated = true];
+
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация о кластерах
+        ClusterDataResult cluster_data = 3;
+
+        // Результат запроса: Ошибка
+        Error error = 4;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+        }
+    }
+
+    message ClusterDataResult {
+        // Информация о кластерах
+        repeated ClusterInfo cluster_info = 1;
+
+        // Общее количество кластеров
+        uint32 total_count = 2;
+    }
 }
 
 message DeleteClusterRequest {
@@ -402,9 +450,37 @@ message DeleteClusterRequest {
 
 message DeleteClusterResponse {
     // Успешное удаление кластера
-    Success success = 1;
+    Success success = 1 [deprecated = true];
+
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успешное удаление кластера
+        Success cluster_success = 2;
+
+        // Результат запроса: Ошибка
+        Error error = 3;
+    }
 
     message Success {
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+        }
     }
 }
 
@@ -475,6 +551,9 @@ message UpdateClusterResponse {
 
             // Указано слишком длинное значение параметра description
             DESCRIPTION_TOO_LONG = 9;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 10;
         }
     }
 }
