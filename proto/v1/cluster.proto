@@ -92,6 +92,64 @@ service ClusterService {
             body: "*"
         };
     }
+
+    // Обновить конфигурацию кластера
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc updateConfiguration (UpdateConfigurationRequest) returns (UpdateConfigurationResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/cluster/{cluster_id}/configuration",
+            body: "*"
+        };
+    }
+}
+
+message UpdateConfigurationRequest {
+    // Идентификатор кластера
+    string cluster_id = 1;
+
+    // Название конфигурации
+    string name = 2;
+}
+
+message UpdateConfigurationResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Обновление конфигурации кластера в процессе
+        Success cluster_success = 2;
+
+        // Результат запроса: Ошибка
+        Error error = 3;
+    }
+
+    message Success {
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+
+            // Конфигурация не найдена
+            CONFIGURATION_NOT_FOUND = 3;
+
+            // Конфигурация уже применена
+            CONFIGURATION_ALREADY_APPLIED = 4;
+        }
+    }
 }
 
 message ChangePinnedRequest {
