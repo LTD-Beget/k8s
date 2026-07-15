@@ -612,6 +612,9 @@ message UpdateClusterResponse {
 
             // Пользователь не найден
             CUSTOMER_NOT_FOUND = 10;
+
+            // Обновление версии кластера недоступно в данный момент
+            VERSION_UPDATE_NOT_AVAILABLE = 11;
         }
     }
 }
