@@ -60,6 +60,14 @@ service WorkerGroupService {
             body: "*"
         };
     }
+    // Получить список шаблонов запрещенных ключей лейблов
+    //
+    // Возвращает список шаблонов запрещенных ключей лейблов
+    rpc getWorkerGroupLabelsBlacklist(GetWorkerGroupLabelsBlacklistRequest) returns(GetWorkerGroupLabelsBlacklistResponse){
+        option (google.api.http) = {
+            get: "/v1/k8s/worker/labels-blacklist"
+        };
+    }
 
     // Обновить taints воркер-группы
     //
@@ -221,7 +229,7 @@ message DeleteWorkerGroupResponse {
             CUSTOMER_NOT_FOUND = 3;
 
             // Кластер не найден
-            CLUSTER_NOT_FOUND= 4;
+            CLUSTER_NOT_FOUND = 4;
         }
     }
 }
@@ -341,6 +349,13 @@ message UpdateWorkerGroupLabelsResponse {
             CUSTOMER_NOT_FOUND = 5;
         }
     }
+}
+
+message GetWorkerGroupLabelsBlacklistRequest{ }
+
+message GetWorkerGroupLabelsBlacklistResponse {
+    // Список шаблонов запрещенных ключей лейблов
+    repeated string key_pattern = 1;
 }
 
 message UpdateWorkerGroupTaintsRequest {
