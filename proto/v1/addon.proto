@@ -80,6 +80,12 @@ message InstallAddonResponse {
 
             // Нельзя установить предустановленный аддон
             CANNOT_INSTALL_PREINSTALLED = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 3;
         }
     }
 }
@@ -118,6 +124,12 @@ message DeleteAddonResponse {
 
             // Нельзя удалить предустановленный аддон
             CANNOT_DELETE_PREINSTALLED = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 3;
         }
     }
 }
@@ -127,5 +139,34 @@ message GetAvailableAddonsRequest {
 
 message GetAvailableAddonsResponse {
     // Информация об аддонах
-    repeated structures.AddonInfo addon_info = 1;
+    repeated structures.AddonInfo addon_info = 1 [deprecated = true];
+
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Информация об аддонах
+        AddonDataResult addon_data = 2;
+
+        // Результат запроса: Ошибка
+        Error error = 3;
+    }
+
+    message AddonDataResult {
+        repeated structures.AddonInfo addon_info = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+        }
+    }
 }

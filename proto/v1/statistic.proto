@@ -250,6 +250,9 @@ message GetCpuControlPlaneResponse {
 
             // Кластер не найден
             CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
         }
     }
 }
@@ -310,6 +313,9 @@ message GetCpuWorkerGroupResponse {
 
             // Воркер-группа не найдена
             WORKER_GROUP_NOT_FOUND = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
         }
     }
 }
@@ -350,6 +356,9 @@ message GetMemoryControlPlaneResponse {
 
             // Кластер не найден
             CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
         }
     }
 }
@@ -410,6 +419,9 @@ message GetMemoryWorkerGroupResponse {
 
             // Воркер-группа не найдена
             WORKER_GROUP_NOT_FOUND = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
         }
     }
 }
@@ -450,6 +462,9 @@ message GetDiskUsageControlPlaneResponse {
 
             // Кластер не найден
             CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
         }
     }
 }
@@ -510,6 +525,9 @@ message GetDiskUsageWorkerGroupResponse {
 
             // Воркер-группа не найдена
             WORKER_GROUP_NOT_FOUND = 2;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 3;
         }
     }
 }
