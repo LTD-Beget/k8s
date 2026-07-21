@@ -148,6 +148,12 @@ message UpdateConfigurationResponse {
 
             // Конфигурация уже применена
             CONFIGURATION_ALREADY_APPLIED = 4;
+
+            // Заблокирован доступ к кластеру
+            CLUSTER_BLOCKED = 5;
+
+            // Кластер нельзя обновить в данный момент
+            UPDATE_CLUSTER_FORBIDDEN = 6;
         }
     }
 }
