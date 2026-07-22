@@ -125,7 +125,7 @@ message LabelsConfiguration {
     bool enabled = 2;
 
     message Label {
-        // Ключ. Должен начинаться с префикса "node-role.kubernetes.io/"
+        // Ключ
         string key = 1;
         string value = 2;
     }
