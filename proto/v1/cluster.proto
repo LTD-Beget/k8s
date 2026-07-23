@@ -295,6 +295,15 @@ message CreateClusterRequest {
     // Ранг кластера, до которого будет размещен кластер в интерфейсе как закреплённый
     string ui_pinned_before_rank = 15;
 
+    // Режим управления IP-адресами (IPAM) для Cilium
+    IpamMode ipam_mode = 16;
+
+    enum IpamMode {
+        _ = 0;
+        IPAM_CLUSTER_POOL = 1;
+        IPAM_MULTI_POOL = 2;
+    }
+
     message AddonConfiguration {
         string name = 1;
     }
