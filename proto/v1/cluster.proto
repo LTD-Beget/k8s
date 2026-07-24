@@ -250,6 +250,9 @@ message BindProjectResponse {
 }
 
 message CreateClusterRequest {
+    reserved 16;
+    reserved "ipam_mode";
+
     // Название кластера для отображения
     string display_name = 1;
 
@@ -294,15 +297,6 @@ message CreateClusterRequest {
 
     // Ранг кластера, до которого будет размещен кластер в интерфейсе как закреплённый
     string ui_pinned_before_rank = 15;
-
-    // Режим управления IP-адресами (IPAM) для Cilium
-    IpamMode ipam_mode = 16;
-
-    enum IpamMode {
-        _ = 0;
-        IPAM_CLUSTER_POOL = 1;
-        IPAM_MULTI_POOL = 2;
-    }
 
     message AddonConfiguration {
         string name = 1;
@@ -704,6 +698,9 @@ message ClusterInfo {
     // Флаг блокировки кластера
     bool is_blocked = 23;
 
+    // Режим управления IP-адресами (IPAM) для Cilium
+    IpamMode ipam_mode = 24;
+
     message InstalledAddonInfo {
         // Информация об аддоне
         structures.AddonInfo addon_info = 1;
@@ -741,6 +738,11 @@ message ClusterInfo {
         HEALTHY = 2;
         DEGRADED = 3;
         FAILED = 4;
+    }
+
+    enum IpamMode {
+        MULTI_POOL = 0;
+        CLUSTER_POOL = 1;
     }
 }
 
