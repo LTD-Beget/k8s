@@ -741,8 +741,8 @@ message ClusterInfo {
     }
 
     enum IpamMode {
-        CLUSTER_POOL = 0;
-        MULTI_POOL = 1;
+        MULTI_POOL = 0;
+        CLUSTER_POOL = 1;
     }
 }
 
