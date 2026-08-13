@@ -220,14 +220,24 @@ message GetRegionListResponse {
 }
 
 message GetVersionsRequest {
+    // Идентификатор кластера (необязательный параметр)
+    string cluster_id = 1;
 }
 
 message GetVersionsResponse {
     // Дефолтная версия k8s
-    string default_version = 1;
+    string default_version = 1 [deprecated = true];
 
     // Все доступные версии k8s
-    repeated KubernetesVersionInfo version_info = 2;
+    repeated KubernetesVersionInfo version_info = 2 [deprecated = true];
+
+    oneof result {
+        // Результат запроса: Информация о версиях
+        VersionDataResult version_data = 3;
+
+        // Результат запроса: Ошибка
+        Error error = 4;
+    }
 
     message KubernetesVersionInfo {
         // Версия k8s
@@ -235,6 +245,33 @@ message GetVersionsResponse {
 
         // Ссылка на базу знаний
         string docs_url = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+        }
+    }
+
+    message VersionDataResult {
+        // Дефолтная версия k8s
+        string default_version = 1;
+
+        // Все доступные версии k8s
+        repeated KubernetesVersionInfo version_info = 2;
     }
 }
 
