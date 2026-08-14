@@ -103,6 +103,63 @@ service ClusterService {
             body: "*"
         };
     }
+
+    // Получить список окон обслуживания кластера
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc getMaintenanceWindowList(GetMaintenanceWindowListRequest) returns (GetMaintenanceWindowListResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/cluster/{cluster_id}/maintenance/window"
+        };
+    }
+
+    // Создать окно обслуживания кластера
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc createMaintenanceWindow(CreateMaintenanceWindowRequest) returns (CreateMaintenanceWindowResponse) {
+        option (google.api.http) = {
+            post: "/v1/k8s/cluster/{cluster_id}/maintenance/window",
+            body: "*"
+        };
+    }
+
+    // Обновить окно обслуживания
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    // Для получения доступных идентификаторов `window_id` необходимо использовать метод
+    // "Получить список окон обслуживания для кластера"
+    rpc updateMaintenanceWindow(UpdateMaintenanceWindowRequest) returns (UpdateMaintenanceWindowResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/cluster/{cluster_id}/maintenance/window/{window_id}",
+            body: "*"
+        };
+    }
+
+    // Удалить окно обслуживания
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    // Для получения доступных идентификаторов `window_id` необходимо использовать метод
+    // "Получить список окон обслуживания для кластера"
+    rpc deleteMaintenanceWindow(DeleteMaintenanceWindowRequest) returns (DeleteMaintenanceWindowResponse) {
+        option (google.api.http) = {
+            delete: "/v1/k8s/cluster/{cluster_id}/maintenance/window/{window_id}"
+        };
+    }
+
+    // Обновить стратегию обслуживания
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах"
+    rpc updateMaintenanceStrategy (UpdateMaintenanceStrategyRequest) returns (UpdateMaintenanceStrategyResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/cluster/{cluster_id}/maintenance/strategy",
+            body: "*"
+        };
+    }
 }
 
 message UpdateConfigurationRequest {
@@ -272,7 +329,7 @@ message CreateClusterRequest {
     string version = 6;
 
     // Период обновления системы
-    MaintenanceInfo maintenance = 7;
+    MaintenanceInfo maintenance = 7 [deprecated = true];
 
     // Список аддонов для установки
     repeated AddonConfiguration addon = 8;
@@ -297,6 +354,11 @@ message CreateClusterRequest {
 
     // Ранг кластера, до которого будет размещен кластер в интерфейсе как закреплённый
     string ui_pinned_before_rank = 15;
+
+    repeated MaintenanceWindowData window_data = 17;
+
+    // Стратегия обслуживания
+    MaintenanceStrategy strategy = 18;
 
     message AddonConfiguration {
         string name = 1;
@@ -565,7 +627,7 @@ message UpdateClusterRequest {
     string version = 4;
 
     // Период обновления системы
-    MaintenanceInfo maintenance = 5;
+    MaintenanceInfo maintenance = 5 [deprecated = true];
 
     // Конфиг для аутентификации OIDC
     OidcProvider oidc = 6;
@@ -624,6 +686,230 @@ message UpdateClusterResponse {
 
             // Обновление версии кластера недоступно в данный момент
             VERSION_UPDATE_NOT_AVAILABLE = 11;
+        }
+    }
+}
+
+message GetMaintenanceWindowListRequest {
+    // ID кластера
+    string cluster_id = 1;
+}
+
+message GetMaintenanceWindowListResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успех
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success {
+        // Список окон обслуживания
+        repeated MaintenanceWindow window = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
+        }
+    }
+}
+
+message CreateMaintenanceWindowRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // Конфигурация окна обслуживания
+    MaintenanceWindowData window = 2;
+}
+
+message CreateMaintenanceWindowResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успех
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success {
+        // Окно обслуживания
+        MaintenanceWindow window = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
+
+            // Некорректная конфигурация окна обслуживания
+            INVALID_MAINTENANCE_WINDOW_DATA = 3;
+        }
+    }
+}
+
+message UpdateMaintenanceWindowRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID окна обслуживания
+    string window_id = 2;
+
+    // Конфигурация окна обслуживания
+    MaintenanceWindowData window_data = 3;
+}
+
+message UpdateMaintenanceWindowResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успех
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success {
+        // Окно обслуживания
+        MaintenanceWindow window = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
+
+            // Окно обслуживания не найдено
+            MAINTENANCE_WINDOW_NOT_FOUND = 3;
+
+            // Некорректная конфигурация окна обслуживания
+            INVALID_MAINTENANCE_WINDOW_DATA = 4;
+        }
+    }
+}
+
+message DeleteMaintenanceWindowRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID окна обслуживания
+    string window_id = 2;
+}
+
+message DeleteMaintenanceWindowResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успех
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success { }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
+
+            // Окно обслуживания не найдено
+            MAINTENANCE_WINDOW_NOT_FOUND = 3;
+        }
+    }
+}
+
+message UpdateMaintenanceStrategyRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // Стратегия обслуживания
+    MaintenanceStrategy strategy = 2;
+}
+
+message UpdateMaintenanceStrategyResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успех
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success {
+        // Стратегия обслуживания
+        MaintenanceStrategy strategy = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 1;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 2;
         }
     }
 }
@@ -766,10 +1052,65 @@ message OidcProvider {
 }
 
 message MaintenanceInfo {
-    MaintenanceConfiguration config = 1;
+    MaintenanceConfiguration config = 1 [deprecated = true];
 
     // Время последнего обновления
     string last_system_update = 2;
+
+    // Окна обслуживания
+    repeated MaintenanceWindow window = 3;
+
+    // Стратегия обслуживания
+    MaintenanceStrategy strategy = 4;
+}
+
+message MaintenanceWindow {
+    // ID окна обслуживания
+    string window_id = 1;
+
+    // Конфигурация окна обслуживания
+    MaintenanceWindowData window_data = 2;
+}
+
+message MaintenanceWindowData {
+    // Дени недели
+    repeated DayOfWeek day_of_week = 1;
+
+    MaintenanceTime maintenance_time = 2;
+
+    enum DayOfWeek {
+        // Любой день, значение по умолчанию
+        ANY = 0;
+        MONDAY = 1;
+        TUESDAY = 2;
+        WEDNESDAY = 3;
+        THURSDAY = 4;
+        FRIDAY = 5;
+        SATURDAY = 6;
+        SUNDAY = 7;
+    }
+
+    message MaintenanceTime {
+        // Начало временного интервала обновления системы (hh:mm)
+        string update_from = 2;
+
+        // Конец временного интервала обновления системы (hh:mm)
+        string update_to = 3;
+
+        // Смещение часового пояса относительно UTC (ex.: +03:00, -05:00)
+        string update_timezone = 4;
+    }
+}
+
+enum MaintenanceStrategy {
+    // На 2 версии младше последней стабильной версии, значение по умолчанию
+    STABLE_2 = 0;
+
+    // На 1 версии младше последней стабильной версии
+    FAST_1 = 1;
+
+    // Последняя стабильная версия
+    NEW_0 = 2;
 }
 
 message MaintenanceConfiguration {
