@@ -1073,7 +1073,7 @@ message MaintenanceWindow {
 }
 
 message MaintenanceWindowData {
-    // Дени недели
+    // Дни недели
     repeated DayOfWeek day_of_week = 1;
 
     MaintenanceTime maintenance_time = 2;

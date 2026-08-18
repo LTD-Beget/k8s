@@ -135,6 +135,8 @@ message DeleteAddonResponse {
 }
 
 message GetAvailableAddonsRequest {
+    // Идентификатор кластера. Опционально
+    string cluster_id = 1;
 }
 
 message GetAvailableAddonsResponse {
