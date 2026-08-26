@@ -165,6 +165,11 @@ message AddonInfo {
     // Название аддона
     string display_name = 4;
 
+    // Совместимость с версией k8s
+    bool is_k8s_version_compatible = 5;
+
+    bool is_installed = 6;
+
     message AddonMeta {
         // Описание на русском
         string description = 1;
