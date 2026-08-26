@@ -358,7 +358,7 @@ message CreateClusterRequest {
     repeated MaintenanceWindowData window_data = 17;
 
     // Стратегия обслуживания
-    MaintenanceStrategy strategy = 18;
+    structures.MaintenanceStrategy strategy = 18;
 
     message AddonConfiguration {
         string name = 1;
@@ -876,7 +876,7 @@ message UpdateMaintenanceStrategyRequest {
     string cluster_id = 1;
 
     // Стратегия обслуживания
-    MaintenanceStrategy strategy = 2;
+    structures.MaintenanceStrategy strategy = 2;
 }
 
 message UpdateMaintenanceStrategyResponse {
@@ -891,7 +891,7 @@ message UpdateMaintenanceStrategyResponse {
 
     message Success {
         // Стратегия обслуживания
-        MaintenanceStrategy strategy = 1;
+        structures.MaintenanceStrategy strategy = 1;
     }
 
     message Error {
@@ -1061,7 +1061,7 @@ message MaintenanceInfo {
     repeated MaintenanceWindow window = 3;
 
     // Стратегия обслуживания
-    MaintenanceStrategy strategy = 4;
+    structures.MaintenanceStrategy strategy = 4;
 }
 
 message MaintenanceWindow {
@@ -1100,17 +1100,6 @@ message MaintenanceWindowData {
         // Смещение часового пояса относительно UTC (ex.: +03:00, -05:00)
         string update_timezone = 4;
     }
-}
-
-enum MaintenanceStrategy {
-    // На 2 версии младше последней стабильной версии, значение по умолчанию
-    STABLE_2 = 0;
-
-    // На 1 версии младше последней стабильной версии
-    FAST_1 = 1;
-
-    // Последняя стабильная версия
-    NEW_0 = 2;
 }
 
 message MaintenanceConfiguration {

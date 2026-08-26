@@ -245,6 +245,9 @@ message GetVersionsResponse {
 
         // Ссылка на базу знаний
         string docs_url = 2;
+
+        // Стратегии обновления кластера, в которых версия k8s доступна
+        repeated structures.MaintenanceStrategy satisfied_strategy = 3;
     }
 
     message Error {

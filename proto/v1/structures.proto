@@ -170,6 +170,8 @@ message AddonInfo {
 
     bool is_installed = 6;
 
+    Status status = 7;
+
     message AddonMeta {
         // Описание на русском
         string description = 1;
@@ -203,6 +205,15 @@ message AddonInfo {
 
         // Ссылка на официальный сайт
         string official_url = 11;
+    }
+
+    enum Status {
+        UNKNOWN = 0;
+        PENDING = 1;
+        INSTALLING = 2;
+        INSTALLED = 3;
+        ERROR = 4;
+        REMOVING = 5;
     }
 }
 
@@ -250,4 +261,17 @@ message ClusterConfigurationInfo {
 
     // Название конфигурации для отображения на английском
     string display_name_en = 9;
+}
+
+enum MaintenanceStrategy {
+    UNDEFINED = 0;
+
+    // На 2 версии младше последней стабильной версии, значение по умолчанию
+    STABLE_2 = 1;
+
+    // На 1 версии младше последней стабильной версии
+    FAST_1 = 2;
+
+    // Последняя стабильная версия
+    NEW_0 = 3;
 }
