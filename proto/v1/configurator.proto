@@ -222,6 +222,9 @@ message GetRegionListResponse {
 message GetVersionsRequest {
     // Идентификатор кластера (необязательный параметр)
     string cluster_id = 1;
+
+    // Стратегия, для которой необходимо получить доступные версии
+    structures.MaintenanceStrategy strategy = 2;
 }
 
 message GetVersionsResponse {
@@ -232,7 +235,7 @@ message GetVersionsResponse {
     repeated KubernetesVersionInfo version_info = 2 [deprecated = true];
 
     oneof result {
-        // Результат запроса: Информация о версиях
+        // Результат запроса: Информация о версиях, доступных в запрошенной стратегии
         VersionDataResult version_data = 3;
 
         // Результат запроса: Ошибка
@@ -247,7 +250,7 @@ message GetVersionsResponse {
         string docs_url = 2;
 
         // Стратегии обновления кластера, в которых версия k8s доступна
-        repeated structures.MaintenanceStrategy satisfied_strategy = 3;
+        repeated structures.MaintenanceStrategy satisfied_strategy = 3 [deprecated = true];
     }
 
     message Error {
@@ -273,8 +276,11 @@ message GetVersionsResponse {
         // Дефолтная версия k8s
         string default_version = 1;
 
-        // Все доступные версии k8s
+        // Версии k8s, доступные в запрошенной стратегии
         repeated KubernetesVersionInfo version_info = 2;
+
+        // Стратегия обновления
+        structures.MaintenanceStrategy strategy = 3;
     }
 }
 
