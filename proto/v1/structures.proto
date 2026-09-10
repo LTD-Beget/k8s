@@ -91,13 +91,30 @@ message WorkerGroupConfiguration {
     uint32 node_count = 2;
 
     // Конфигурация нод
-    NodeConfiguration node_config = 3;
+    NodeConfiguration node_config = 3 [deprecated = true];
 
     // Автомасштабирование
     AutoscaleConfiguration autoscale_config = 4;
 
     // Идентификаторы публичных SSH-ключей
     repeated uint32 ssh_keys = 5;
+
+    oneof configuration_data {
+        string worker_group_configuration_preset_name = 6;
+
+        WorkerGroupNodeConfig worker_group_node_config = 7;
+    }
+
+    message WorkerGroupNodeConfig {
+        // Количество ядер
+        uint32 cpu = 1;
+
+        // Память в мб
+        uint32 memory_mb = 2;
+
+        // Объем дисковой квоты в Мб
+        uint32 nvme_size = 3;
+    }
 }
 
 message AutoscaleConfiguration {

@@ -43,7 +43,7 @@ service ConfiguratorService {
         };
     }
 
-    // Получить настройки конфигурации
+    // Получить настройки конфигурации воркер-группы
     //
     // Возвращает настройки конфигурации (CPU, RAM итд)
     rpc getWorkerGroupConfiguration (GetWorkerGroupConfigurationRequest) returns (GetWorkerGroupConfigurationResponse) {
@@ -52,7 +52,7 @@ service ConfiguratorService {
         };
     }
 
-    // Получить расчет конфигурации
+    // Получить расчет конфигурации воркер-группы
     //
     // Проверяет возможность создания переданной конфигурации, возвращает ее стоимость.
     rpc getCalculation (GetCalculationRequest) returns (GetCalculationResponse) {
@@ -60,6 +60,37 @@ service ConfiguratorService {
             get: "/v1/k8s/configurator/calculation"
         };
     }
+
+    // Получить настройки конфигурации кластера
+    //
+    // Возвращает настройки конфигурации (CPU, RAM итд)
+    rpc getControlPlaneConfiguration(GetControlPlaneConfigurationRequest) returns (GetControlPlaneConfigurationResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/configurator/control-plane-configuration",
+        };
+    }
+
+    // Получить расчет конфигурации кластера
+    //
+    // Проверяет возможность создания переданной конфигурации, возвращает ее стоимость.
+    rpc getControlPlaneCalculation (GetControlPlaneCalculationRequest) returns (GetControlPlaneCalculationResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/configurator/control-plane-calculation"
+        };
+    }
+
+    rpc getControlPlaneConfigurationPresetList(GetControlPlaneConfigurationPresetListRequest) returns (GetControlPlaneConfigurationPresetListResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/configurator/preset/control-plane",
+        };
+    }
+
+    rpc getWorkerGroupConfigurationPresetList(GetWorkerGroupConfigurationPresetListRequest) returns (GetWorkerGroupConfigurationPresetListResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/configurator/preset/worker-group",
+        };
+    }
+
 }
 
 message GetConfigurationListRequest {
@@ -158,6 +189,78 @@ message GetWorkerGroupConfigurationResponse {
     }
 }
 
+message GetControlPlaneConfigurationRequest {
+    // Регион, для которого получить информацию о конфигурации. По-умолчанию: ru1
+    string region = 1;
+}
+
+message GetControlPlaneConfigurationResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Настройки конфигурации
+        ConfiguratorSettings configurator_settings = 2;
+
+        // Результат запроса: Ошибка
+        Error error = 3;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Сервис временно недоступен
+            TEMPORARILY_UNAVAILABLE = 1;
+
+            // Сервис недоступен в данном регионе
+            UNAVAILABLE_FOR_REGION = 2;
+        }
+    }
+
+    message ConfiguratorSettings {
+        // Настройки CPU
+        CpuSettings cpu_settings = 1;
+
+        // Настройки памяти
+        MemorySettings memory_settings = 2;
+
+        message CpuSettings {
+            // Диапазон значений кол-ва CPU min/max в шт
+            Range range = 1;
+
+            // Диапазон доступных значений кол-ва CPU min/max в шт
+            Range available_range = 2;
+
+            // Шаг в шт
+            uint32 step = 3;
+        }
+
+        message MemorySettings {
+            // Диапазон значений объема памяти min/max в МБ
+            Range range = 1;
+
+            // Диапазон доступных значений объема памяти min/max в МБ
+            Range available_range = 2;
+
+            // Шаг в МБ
+            uint32 step = 3;
+        }
+
+        message Range {
+            // Минимальное значение
+            uint32 min = 1;
+            // Максимальное значение
+            uint32 max = 2;
+        }
+    }
+}
+
 message GetCalculationRequest {
     // Параметры конфигурации
     ConfigurationParams params = 1;
@@ -178,6 +281,56 @@ message GetCalculationRequest {
 }
 
 message GetCalculationResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: информация о конфигурации
+        Success success = 1;
+
+        // Результат запроса: ошибка
+        Error error = 2;
+    }
+
+    message Success {
+        // Стоимость полученной конфигурации в день
+        double price_day = 1;
+
+        // Стоимость полученной конфигурации в месяц
+        double price_month = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
+        }
+    }
+}
+
+message GetControlPlaneCalculationRequest {
+    string configuration_name = 1;
+
+    // Параметры конфигурации
+    ConfigurationParams params = 2;
+
+    // Регион, для которого требуется рассчитать конфигурацию. По-умолчанию: ru1
+    string region = 3;
+
+    message ConfigurationParams {
+        // Количество ядер процессора
+        uint32 cpu_count = 1;
+
+        // Объем оперативной памяти в Мб
+        uint32 memory = 2;
+    }
+}
+
+message GetControlPlaneCalculationResponse {
     // Результат запроса
     oneof result {
         // Результат запроса: информация о конфигурации
@@ -299,5 +452,68 @@ message GetConfigurationPriceResponse {
 
         // Стоимость в месяц
         double price_month = 3;
+    }
+}
+
+message GetControlPlaneConfigurationPresetListRequest {
+    string region = 1;
+}
+
+message GetControlPlaneConfigurationPresetListResponse {
+    repeated ControlPlaneConfigurationPreset control_plane_configuration_preset = 1;
+
+    message ControlPlaneConfigurationPreset {
+        string configuration_name = 1;
+
+        repeated ControlPlaneConfigurationPresetData data = 2;
+
+        message ControlPlaneConfigurationPresetData {
+            string name = 1;
+            string title = 2;
+            string title_en = 3;
+            string description = 4;
+            string description_en = 5;
+
+            // Количество ядер процессора
+            uint32 cpu_count = 6;
+
+            // Память в мб
+            uint32 memory_mb = 7;
+
+            // Стоимость в сутки
+            double price_day = 8;
+
+            // Стоимость в месяц
+            double price_month = 9;
+
+            bool is_promo = 10;
+        }
+    }
+}
+
+message GetWorkerGroupConfigurationPresetListRequest {
+    string region = 1;
+}
+
+message GetWorkerGroupConfigurationPresetListResponse {
+    repeated WorkerGroupConfigurationPreset worker_group_configuration_preset = 1;
+
+    message WorkerGroupConfigurationPreset {
+        string name = 1;
+
+        // Количество ядер процессора
+        uint32 cpu_count = 2;
+
+        // Память в мб
+        uint32 memory_mb = 3;
+
+        // Объем NVMe-накопителя в мб
+        uint32 nvme_mb = 4;
+
+        // Стоимость в сутки
+        double price_day = 5;
+
+        // Стоимость в месяц
+        double price_month = 6;
     }
 }
