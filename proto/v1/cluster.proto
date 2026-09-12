@@ -168,6 +168,12 @@ message UpdateConfigurationRequest {
 
     // Название конфигурации
     string name = 2;
+
+    oneof configuration_data {
+        string control_plane_configuration_preset_name = 19;
+
+        ControlPlaneNodeConfig control_plane_node_config = 20;
+    }
 }
 
 message UpdateConfigurationResponse {
@@ -359,6 +365,12 @@ message CreateClusterRequest {
 
     // Стратегия обслуживания
     structures.MaintenanceStrategy strategy = 18;
+
+    oneof configuration_data {
+        string control_plane_configuration_preset_name = 19;
+
+        ControlPlaneNodeConfig control_plane_node_config = 20;
+    }
 
     message AddonConfiguration {
         string name = 1;
@@ -987,6 +999,12 @@ message ClusterInfo {
     // Режим управления IP-адресами (IPAM) для Cilium
     IpamMode ipam_mode = 24;
 
+    oneof configuration_data {
+        string control_plane_configuration_preset_name = 25;
+
+        ControlPlaneNodeConfig control_plane_node_config = 26;
+    }
+
     message InstalledAddonInfo {
         // Информация об аддоне
         structures.AddonInfo addon_info = 1;
@@ -1111,4 +1129,12 @@ message MaintenanceConfiguration {
 
     // Часовой пояс интервалов в формате UTC
     string updates_timezone = 3;
+}
+
+message ControlPlaneNodeConfig {
+    // Количество ядер
+    uint32 cpu = 1;
+
+    // Память в мб
+    uint32 memory_mb = 2;
 }
