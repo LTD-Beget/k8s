@@ -30,6 +30,9 @@ message WorkerGroup {
     // Стоимость в месяц
     double price_month = 9;
 
+    // Автоматическая замена неисправных узлов
+    AutohealingConfiguration autohealing_info = 10;
+
     message NodeInfo {
         // ID конфига
         string id = 1;
@@ -81,6 +84,9 @@ message WorkerGroupData {
 
     // Тейнты
     TaintsConfiguration taint_config = 4;
+
+    // Автоматическая замена неисправных узлов
+    AutohealingConfiguration autohealing_config = 5;
 }
 
 message WorkerGroupConfiguration {
@@ -115,6 +121,11 @@ message WorkerGroupConfiguration {
         // Объем дисковой квоты в Мб
         uint32 nvme_size = 3;
     }
+}
+
+message AutohealingConfiguration {
+    // Автоматическая замена неисправных узлов включена
+    bool enabled = 1;
 }
 
 message AutoscaleConfiguration {
