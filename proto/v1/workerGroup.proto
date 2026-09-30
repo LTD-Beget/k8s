@@ -82,6 +82,19 @@ service WorkerGroupService {
         };
     }
 
+    // Обновить автохилинг воркер-группы
+    //
+    // Включает или выключает автоматическую замену неисправных узлов группы
+    //
+    // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
+    // "Получить информацию о кластерах" из API "Управление кластерами k8s"
+    rpc updateWorkerGroupAutohealing (UpdateWorkerGroupAutohealingRequest) returns (UpdateWorkerGroupAutohealingResponse) {
+        option (google.api.http) = {
+            put: "/v1/k8s/worker/{cluster_id}/{id}/autohealing",
+            body: "*"
+        };
+    }
+
     // Получить информацию о воркер-группах кластера
     //
     // Отдаёт информацию о всех воркер-группах кластера
@@ -400,6 +413,55 @@ message UpdateWorkerGroupTaintsResponse {
 
             // Некорректные данные taints
             INVALID_TAINT_DATA = 4;
+
+            // Пользователь не найден
+            CUSTOMER_NOT_FOUND = 5;
+        }
+    }
+}
+
+message UpdateWorkerGroupAutohealingRequest {
+    // ID кластера
+    string cluster_id = 1;
+
+    // ID воркер-группы
+    string id = 2;
+
+    structures.AutohealingConfiguration autohealing_config = 3;
+}
+
+message UpdateWorkerGroupAutohealingResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Обновленная воркер-группа
+        structures.WorkerGroup group = 1;
+
+        // Результат запроса: Ошибка при обновлении
+        Error error = 2;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Другая внутренняя ошибка
+            INTERNAL_ERROR = 0;
+
+            // Кластер заблокирован
+            BLOCKED = 1;
+
+            // Кластер не найден
+            CLUSTER_NOT_FOUND = 2;
+
+            // воркер-группа не найдена
+            WORKER_GROUP_NOT_FOUND = 3;
+
+            // Кластер находится в процессе реконфигурации
+            CLUSTER_IS_RECONFIGURING = 4;
 
             // Пользователь не найден
             CUSTOMER_NOT_FOUND = 5;
