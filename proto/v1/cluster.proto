@@ -114,6 +114,13 @@ service ClusterService {
         };
     }
 
+    // Получить конфигурацию окна обслуживания кластера по умолчанию
+    rpc getDefaultMaintenanceWindow(GetDefaultMaintenanceWindowRequest) returns (GetDefaultMaintenanceWindowResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/cluster/maintenance/window/default"
+        };
+    }
+
     // Создать окно обслуживания кластера
     //
     // Для получения доступных идентификаторов `cluster_id` необходимо использовать метод
@@ -738,6 +745,38 @@ message GetMaintenanceWindowListResponse {
 
             // Пользователь не найден
             CUSTOMER_NOT_FOUND = 2;
+        }
+    }
+}
+
+message GetDefaultMaintenanceWindowRequest {
+}
+
+message GetDefaultMaintenanceWindowResponse {
+    // Результат запроса
+    oneof result {
+        // Результат запроса: Успех
+        Success success = 1;
+
+        // Результат запроса: Ошибка
+        Error error = 2;
+    }
+
+    message Success {
+        // Конфигурация окна обслуживания по умолчанию
+        MaintenanceWindowData window = 1;
+    }
+
+    message Error {
+        // Код ошибки
+        Code code = 1;
+
+        // Описание ошибки
+        string message = 2;
+
+        enum Code {
+            // Внутренняя ошибка
+            INTERNAL_ERROR = 0;
         }
     }
 }
