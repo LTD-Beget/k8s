@@ -1133,7 +1133,12 @@ message MaintenanceWindowData {
     // Дни недели
     repeated DayOfWeek day_of_week = 1;
 
-    MaintenanceTime maintenance_time = 2;
+    MaintenanceTime maintenance_time = 2 [deprecated = true];
+
+    oneof time {
+        MaintenanceTime custom_time = 3;
+        AnyTime any_time = 4;
+    }
 
     enum DayOfWeek {
         // Любой день, значение по умолчанию
@@ -1156,6 +1161,10 @@ message MaintenanceWindowData {
 
         // Смещение часового пояса относительно UTC (ex.: +03:00, -05:00)
         string update_timezone = 4;
+    }
+
+    // Любое время, весь день
+    message AnyTime {
     }
 }
 
