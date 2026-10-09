@@ -918,6 +918,9 @@ message DeleteMaintenanceWindowResponse {
 
             // Окно обслуживания не найдено
             MAINTENANCE_WINDOW_NOT_FOUND = 3;
+
+            // Окно обслуживания единственное, его нельзя удалить
+            LAST_MAINTENANCE_WINDOW = 4;
         }
     }
 }
@@ -1146,6 +1149,7 @@ message MaintenanceWindowData {
 
         MaintenanceTime maintenance_time = 2;
     }
+
     enum DayOfWeek {
         // Любой день, значение по умолчанию
         ANY = 0;
