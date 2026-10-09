@@ -1131,15 +1131,21 @@ message MaintenanceWindow {
 
 message MaintenanceWindowData {
     // Дни недели
-    repeated DayOfWeek day_of_week = 1;
+    repeated DayOfWeek day_of_week = 1 [deprecated = true];
 
     MaintenanceTime maintenance_time = 2 [deprecated = true];
 
     oneof time {
-        MaintenanceTime custom_time = 3;
+        CustomTime custom_time = 3;
         AnyTime any_time = 4;
     }
 
+    message CustomTime {
+        // Дни недели
+        repeated DayOfWeek day_of_week = 1;
+
+        MaintenanceTime maintenance_time = 2;
+    }
     enum DayOfWeek {
         // Любой день, значение по умолчанию
         ANY = 0;
