@@ -1,0 +1,30 @@
+syntax = 'proto3';
+
+package beget.k8s.v1.service;
+
+import "google/api/annotations.proto";
+
+service ServiceService {
+    rpc getStatus (GetStatusRequest) returns (GetStatusResponse) {
+        option (google.api.http) = {
+            get: "/v1/k8s/service/status"
+        };
+    }
+}
+
+message GetStatusRequest {
+}
+
+message GetStatusResponse {
+    oneof status {
+        Available available = 1;
+        Unavailable unavailable = 2;
+    }
+
+    message Available {
+    }
+    message Unavailable {
+        string message = 1;
+        string message_en = 2;
+    }
+}
